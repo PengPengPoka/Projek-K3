@@ -1,10 +1,8 @@
-from traceback import print_tb
 import cv2 as cv
 import mediapipe as mp
 import time
 import math
 import numpy as np
- 
  
 class poseDetector():
     
@@ -24,8 +22,6 @@ class poseDetector():
         self.mpPose = mp.solutions.mediapipe.python.solutions.pose
         self.pose = self.mpPose.Pose(self.static_image_mode,self.model_complexity, self.smooth_landmarks,
                                       self.enable_segmetation, self.smooth_segmentation, self.min_detection_confidence,self.min_tracking_confidence)
-        self.red = [0,0,255]
-        self.blue = [255,0,0]
  
     def nothing(self):
         pass
@@ -79,8 +75,7 @@ class poseDetector():
             cv.putText(img, str(int(angle)), (x2 - 50, y2 + 50),
                         cv.FONT_HERSHEY_PLAIN, 2, (0, 0, 255), 2)
         return angle
-    def nothing():
-        pass
+    
         
 
 def main():
@@ -136,10 +131,10 @@ def main():
         for c in contour:
             area = cv.contourArea(c)
             cv.drawContours(drawing,[c],-1,red,3)
-            cv.imshow("drawing",drawing)
+            # cv.imshow("drawing",drawing)
             
             if area > 3500:
-                print(area)
+                # print(area)
                 platform = True
         
         if platform == True:
@@ -162,11 +157,11 @@ def main():
         fps = 1 / (cTime - pTime)
         pTime = cTime
  
-        cv.putText(img, str(int(fps)), (850, 50), cv.FONT_HERSHEY_PLAIN, 3,
+        cv.putText(img, str(int(fps)), (800, 50), cv.FONT_HERSHEY_PLAIN, 3,
                     (255, 0, 0), 3)
  
         cv.imshow("Image", img)
-        cv.waitKey(150)
+        cv.waitKey(30)
  
  
 if __name__ == "__main__":

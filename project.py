@@ -1,26 +1,23 @@
-from copyreg import constructor
+import audioplayer
+from platform import platform
 import time
-from tokenize import Double
-import numpy as np
-import mediapipe as mp
 import cv2 as cv
+import numpy as np
 from pose_module import poseDetector
 
 def nothing():
     pass
 
-video1 = '/home/kosmos/Videos/sample.mp4'
-video2 = '/home/kosmos/Videos/Webcam/hasrob1.webm'
-video3 = '/home/kosmos/Videos/Webcam/hasrob2.webm'
+video_path2 = '/home/kosmos/Videos/Webcam/hasrob1.webm'
+video_path3 = '/home/kosmos/Videos/Webcam/hasrob2.webm'
 
-cap = cv.VideoCapture(video3)
+cap = cv.VideoCapture(video_path3)
+pTime = 0
+pd = poseDetector()
 
-ptime = 0
 red = [0,0,255]
 window = "trackbar"
-isPlatformPresent = False
-
-dp = poseDetector()
+platform_stat = False
 
 cv.namedWindow(window)
 cv.createTrackbar('hue min',window,0,179,nothing)
@@ -32,51 +29,61 @@ cv.createTrackbar('val max',window,255,255,nothing)
 
 while cap.isOpened():
     grab, frame = cap.read()
-    
     if not grab:
-        print('image not grabbed!')
+        print("capture failed")
+        break
     
-    # video scaling
     width = 900
     height = 600
-    frame_dim = (width,height)
-    frame = cv.resize(frame,frame_dim,interpolation=cv.INTER_AREA)
-    
-    blur = cv.GaussianBlur(frame,(5,5),0)
-    
-    frame_hsv = cv.cvtColor(blur,cv.COLOR_BGR2HSV)
+    frame_size = (width,height)
+    frame = cv.resize(frame,frame_size,interpolation=cv.INTER_AREA)
+
+    hsv = cv.cvtColor(frame,cv.COLOR_BGR2HSV)
     hmin = cv.getTrackbarPos('hue min',window)
     smin = cv.getTrackbarPos('sat min',window)
     vmin = cv.getTrackbarPos('val min',window)
     hmax = cv.getTrackbarPos('hue max',window)
     smax = cv.getTrackbarPos('sat max',window)
     vmax = cv.getTrackbarPos('val max',window)
-    
+
     low = np.array([hmin,smin,vmin])
     high = np.array([hmax,smax,vmax])
-    frame_mask = cv.inRange(frame_hsv,low,high)
-    
+    thresh = cv.inRange(hsv,low,high)
+    cv.imshow(window,thresh)
+
+    cv.putText(frame,"platform status: ",(30,50),cv.FONT_HERSHEY_PLAIN,3,red,3)
+
     drawing = frame.copy()
-    contour,hierarchy = cv.findContours(frame_mask,cv.RETR_EXTERNAL,cv.CHAIN_APPROX_NONE)
-    for i in contour:
-        area = cv.contourArea(i)
-        if area > 2000:
-            # cv.drawContours(drawing,contour,-1,red,3,8)
-            isPlatformPresent = True
+    contour = cv.findContours(thresh,cv.RETR_EXTERNAL,cv.CHAIN_APPROX_NONE)[0]
+    for c in contour:
+        area = cv.contourArea(c)
+        cv.drawContours(drawing,[c],-1,red,3)
+        
+        if area > 3500:
             print(area)
+            platform = True
+
+    if platform == True:
+        cv.putText(frame,"present",(450,50),cv.FONT_HERSHEY_PLAIN,3,red,3)
+        print("platform present, please becareful!")
+        
+    elif platform_stat == False:
+        cv.putText(frame,"absent",(450,50),cv.FONT_HERSHEY_PLAIN,3,red,3)
+        cv.line(frame,(225,550),(675,550),[255,255,255],3)
+        
+        frame = pd.findPose(frame)
+        lmlist =pd.findPosition(frame,draw=False)
+        if len(lmlist) != 0:
+            cv.circle(frame, (lmlist[27][1], lmlist[27][2]), 15, (0, 0, 255), cv.FILLED)
+            cv.circle(frame, (lmlist[28][1], lmlist[28][2]), 15, (0, 0, 255), cv.FILLED)
+            if lmlist[27][2] and lmlist[28][2] < 550:
+                print("WARNING: unsafe action!!!")
+        
+
+    cTime = time.time()
+    fps = 1/(cTime-pTime)
+    pTime = cTime
+    cv.putText(frame,str(int(fps)),(800,50),cv.FONT_HERSHEY_PLAIN,3,(255, 0, 0),3)
     
-    # frame_p = dp.findPose(frame)
-    print(isPlatformPresent)
-    # video fps
-    ctime = time.time()
-    fps = 1/(ctime-ptime)
-    ptime = ctime
-    cv.putText(frame,str(int(fps)),(45,75),cv.FONT_HERSHEY_SIMPLEX,3,red,4)
-    
-    cv.imshow('video',frame)
-    cv.imshow(window,frame_mask)
-    cv.imshow('contour',drawing)
-    # cv.imshow('blur',blur)
-    # cv.imshow(window,frame_mask)
-    # cv.imshow("")
+    cv.imshow("video",frame)
     cv.waitKey(30)
