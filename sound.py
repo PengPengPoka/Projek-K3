@@ -1,11 +1,9 @@
 from socket import socket
-
-
 import socket
 import audioplayer as ap
 
 def playAudio(audio):
-    audio.play(False,True)
+    audio.play(False,False)
 
 safe = "aman.mpeg"
 unsafe = "tidak aman.mpeg"
@@ -19,8 +17,8 @@ so.connect((host,port))
 data = so.recv(1024)
 
 while True:
+    print(data)
     if int(data.decode()) == 0:
         playAudio(audio_safe)
     elif int(data.decode()) == 1:
         playAudio(audio_unsafe)
-
