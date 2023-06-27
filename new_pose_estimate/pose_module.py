@@ -44,20 +44,26 @@ class PoseDetector():
         if self.result.pose_landmarks:
             for id,lm in enumerate(self.result.pose_landmarks.landmark):
                 h,w,c = img.shape
-                print(id,lm)
+                # print(id,lm)
                 px, py = int(lm.x * w), int(lm.y * h)
                 lm_list.append([id,px,py])
                 
                 if draw:
                     cv.circle(img,(px,py),3,(255,0,0),cv.FILLED)
+        return lm_list
 
 def main():
     path0 = "/home/kosmos/Videos/man walking.webm"
     path1 = "/home/kosmos/Videos/ivan manjat.MOV"
+    path2 = "/home/kosmos/Videos/Webcam/manjat kasur.webm"
+    path3 = "/home/kosmos/Videos/Webcam/manjat kursi.webm"
+    path4 = "/home/kosmos/Videos/Webcam/manjat kursi2.webm"
+    path5 = "/home/kosmos/Videos/Webcam/manjat kursi3.webm"
+
 
     detector = PoseDetector()
 
-    cap = cv.VideoCapture(path1)
+    cap = cv.VideoCapture(path5)
     pTime = 0
 
     while True:
@@ -69,7 +75,7 @@ def main():
         frame = cv.resize(frame,(800,500))
         frame = detector.findPose(frame,True)
         LMlist = detector.findPosition(frame,True)
-        print(LMlist)
+        
 
         cTime = time.time()
         fps = 1/(cTime-pTime)
@@ -78,6 +84,14 @@ def main():
 
         cv.imshow("video",frame)
         cv.waitKey(3)
+        
+        if len(LMlist) == 0:
+            print("list is empty")
+            continue
+        else:
+            print(LMlist[27])
+            print(LMlist[28])
+        
         
 
 if __name__ == "__main__":
