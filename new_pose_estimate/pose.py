@@ -3,6 +3,7 @@ import mediapipe as mp
 from playsound import playsound
 import time
 import threading
+from threading import Timer
 import numpy as np
 
 from pose_module import PoseDetector
@@ -97,6 +98,7 @@ def main():
             # cv.line(frame,(225,460),(675,460),[0,0,255],3)
             cv.line(frame,(225,550),(675,550),[0,0,255],3)
 
+            action = 1
             frame = pd.findPose(frame)
             lmlist = pd.findPosition(frame,False)
             if len(lmlist) != 0:
@@ -104,7 +106,6 @@ def main():
                 cv.circle(frame, (lmlist[28][1], lmlist[28][2]), 15, (0, 0, 255), cv.FILLED)
                 if lmlist[27][2] and lmlist[28][2] < 550:      #parameter tidak aman
                     print("WARNING: unsafe action!!!")
-                    action = 1
 
         platform_status = False
 
@@ -114,14 +115,17 @@ def main():
         cv.putText(frame,str(int(fps)),(800,50),cv.FONT_HERSHEY_PLAIN,3,(255, 0, 0),3)
 
         tAudio = threading.Thread(target=audio,args=(action,))
+        # tTime = Timer(1,)
         i += 1
-        if i == 20: 
+        if i == 100: 
             tAudio.start()
+            i = 0
+            # action = -1
 
+        print(i)
         cv.imshow("video",frame)
         # cv.imshow("contour",drawing)
         cv.waitKey(30)
-    i = 0
 
 
 if __name__ == "__main__":
