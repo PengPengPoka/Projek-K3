@@ -3,7 +3,6 @@ import mediapipe as mp
 from playsound import playsound
 import time
 import threading
-from threading import Timer
 import numpy as np
 
 from pose_module import PoseDetector
@@ -22,13 +21,12 @@ def audio(action):
         pass
     elif action == 0:
         playsound(safe)
+        time.sleep(3)
     elif action == 1:
         playsound(unsafe)
-    time.sleep(3)
+        time.sleep(3)
 
 def main():
-
-
     path0 = "/home/kosmos/Videos/man walking.webm"
     path1 = "/home/kosmos/Videos/ivan manjat.MOV"
     path2 = "/home/kosmos/Videos/Webcam/manjat kasur.webm"
@@ -115,14 +113,15 @@ def main():
         cv.putText(frame,str(int(fps)),(800,50),cv.FONT_HERSHEY_PLAIN,3,(255, 0, 0),3)
 
         tAudio = threading.Thread(target=audio,args=(action,))
-        # tTime = Timer(1,)
+        # tTime = threading.Timer(1,audio,[action])
+        # tTime.start()
         i += 1
         if i == 100: 
             tAudio.start()
             i = 0
-            # action = -1
 
-        print(i)
+        # print(i)
+        # print(action)
         cv.imshow("video",frame)
         # cv.imshow("contour",drawing)
         cv.waitKey(30)
