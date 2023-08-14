@@ -33,7 +33,7 @@ def main():
     path3 = "/home/kosmos/Videos/Webcam/manjat kursi.webm"
     path4 = "/home/kosmos/Videos/Webcam/manjat kursi2.webm"
     path5 = "/home/kosmos/Videos/Webcam/manjat kursi3.webm"
-    cap = cv.VideoCapture(path1)
+    cap = cv.VideoCapture(2)
 
     pd = PoseDetector()
     pTime = 0
@@ -71,8 +71,8 @@ def main():
         smax = cv.getTrackbarPos('sat max',window)
         vmax = cv.getTrackbarPos('val max',window)
 
-        low = np.array([98,134,0])
-        high = np.array([129,255,112])
+        low = np.array([42,40,106])
+        high = np.array([55,125,255])
         thresh = cv.inRange(hsv,low,high)
         cv.imshow(window,thresh)
         cv.putText(frame,"platform status: ",(30,50),cv.FONT_HERSHEY_PLAIN,3,red,3)
@@ -82,7 +82,7 @@ def main():
         for c in contour:
             area = cv.contourArea(c)
             cv.drawContours(drawing,[c],-1,red,3)
-            if area > 1500 and area < 30000:
+            if area > 4500 and area < 30000:
                 # print(area)
                 platform_status = True
         
@@ -94,16 +94,16 @@ def main():
         elif platform_status == False:
             cv.putText(frame,"absent",(450,50),cv.FONT_HERSHEY_PLAIN,3,red,3)
             # cv.line(frame,(225,460),(675,460),[0,0,255],3)
-            cv.line(frame,(225,550),(675,550),[0,0,255],3)
+            cv.line(frame,(225,400),(675,400),[0,0,255],3)
 
-            action = 1
             frame = pd.findPose(frame)
             lmlist = pd.findPosition(frame,False)
             if len(lmlist) != 0:
                 cv.circle(frame, (lmlist[27][1], lmlist[27][2]), 15, (0, 0, 255), cv.FILLED)
                 cv.circle(frame, (lmlist[28][1], lmlist[28][2]), 15, (0, 0, 255), cv.FILLED)
-                if lmlist[27][2] and lmlist[28][2] < 550:      #parameter tidak aman
+                if lmlist[27][2] and lmlist[28][2] < 400:      #parameter tidak aman
                     print("WARNING: unsafe action!!!")
+                    action = 1
 
         platform_status = False
 
@@ -115,16 +115,26 @@ def main():
         tAudio = threading.Thread(target=audio,args=(action,))
         # tTime = threading.Timer(1,audio,[action])
         # tTime.start()
-        i += 1
-        if i == 100: 
+        print(action)
+        i += 10
+        print(i)
+        if i == 1000: 
             tAudio.start()
             i = 0
+            
+        # if i == 1000 and action != -1: 
+        #     tAudio = threading.Thread(target=audio, args=(action,))
+        #     tAudio.start()
+        #     i = 0
+
 
         # print(i)
         # print(action)
         cv.imshow("video",frame)
         # cv.imshow("contour",drawing)
         cv.waitKey(30)
+    
+    action = -1
 
 
 if __name__ == "__main__":
