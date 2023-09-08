@@ -23,7 +23,7 @@ while True:
         
         # temperature room condition
         if (temp >= 20 and temp <=28):
-            lcd.text("temperature: normal",1)
+            lcd.text("temperature: {:.2f}".format(temp),1)
             temp_state = 0
         elif (temp < 20):
             lcd.text("temperature: cold",1)
@@ -34,7 +34,7 @@ while True:
         
         # humidity room condition
         if (humid >= 40 and humid <= 60):
-            lcd.text("humidity: normal", 2)
+            lcd.text("humidity: {:.2f}%".format(humid),2)
             humid_state = 0
         elif (humid < 40):
             lcd.text("humidity: dry", 2)
@@ -45,7 +45,7 @@ while True:
         
         # lux room condition       
         if (lux >= 100):
-            lcd.text("lumen: normal",3)
+            lcd.text("lux: {:.2f} %".format(lux),3)
             lux_state = 0
         elif (lux < 100):
             lcd.text("lumen: dark",3)
@@ -72,9 +72,6 @@ while True:
                 lcd.backlight(True)
                 time.sleep(0.5)
         
-        # lcd.text("temperature: {:.2f}".format(temp),1)
-        # lcd.text("humidity: {:.2f}%".format(humid),2)
-        # lcd.text("lux: {:.2f}".format(lux),3)
 
     except RuntimeError as error:
         # Errors happen fairly often, DHT's are hard to read, just keep going

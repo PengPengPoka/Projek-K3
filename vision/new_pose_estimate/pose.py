@@ -5,6 +5,7 @@ import threading
 import numpy as np
 import os
 from pydub import AudioSegment
+import RPi.GPIO as GPIO
 from pydub.playback import play
 
 from pose_module import PoseDetector
@@ -32,21 +33,41 @@ def audio(action):
         play(unsafe_sound)
         time.sleep(3)
 
+def buzzer(pin):
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(pin,GPIO.OUT)
+
+    GPIO.output(pin,GPIO.HIGH)
+    print ("Beep")
+    time.sleep(1.5) # Delay in seconds
+    GPIO.output(pin,GPIO.LOW)
+    print ("No Beep")
+    time.sleep(1.5)
+
+
+
 def main():
-    path0 = home + "Projek-K3/vision/utils/video/man walking.webm"
-    path1 = home + "Projek-K3/vision/utils/video/ivan manjat.MOV"
-    path2 = home + "Projek-K3/vision/utils/video/manjat kasur.webm"
-    path3 = home + "Projek-K3/vision/utils/video/manjat kursi.webm"
-    path4 = home + "Projek-K3/vision/utils/video/manjat kursi2.webm"
-    path5 = home + "Projek-K3/vision/utils/video/manjat kursi3.webm"
-    path6 = "/home/test/Projek-K3/vision/utils/video/hasani manjat 3.webm"
-    cap = cv.VideoCapture(path6)
+    path0 = home + "/Projek-K3/vision/utils/video/man walking.webm"
+    path1 = home + "/Projek-K3/vision/utils/video/ivan manjat.MOV"
+    path2 = home + "/Projek-K3/vision/utils/video/manjat kasur.webm"
+    path3 = home + "/Projek-K3/vision/utils/video/manjat kursi.webm"
+    path4 = home + "/Projek-K3/vision/utils/video/manjat kursi2.webm"
+    path5 = home + "/Projek-K3/vision/utils/video/manjat kursi3.webm"
+    path6 = home + "/Projek-K3/vision/utils/video/hasani manjat 2.webm"
+    path7 = home + "/Projek-K3/vision/utils/video/hasani manjat 3.webm"
+    path8 = home + "/Projek-K3/vision/utils/video/hasani manjat 4.webm"
+    cap = cv.VideoCapture(path7)
 
     pd = PoseDetector()
     pTime = 0
     platform_status = False
     red = [0,0,255]
     window = "trackbar"
+
+    pin = 23
+    last_buzzer_call_time = 0
+    buzzer_delay = 5
 
     action = -1
     i = 0
@@ -120,15 +141,25 @@ def main():
         cv.putText(frame,str(int(fps)),(800,50),cv.FONT_HERSHEY_PLAIN,3,(255, 0, 0),3)
 
         tAudio = threading.Thread(target=audio,args=(action,))
+        # tBuzzer = threading.Thread(target=buzzer,args=(pin,))
         # tTime = threading.Timer(1,audio,[action])
         # tTime.start()
         print(action)
         i += 10
         print(i)
-        if i == 1000: 
-            tAudio.start()
-            i = 0
+        # if action == 1: 
+        #     # tAudio.start()
+        #     tBuzzer.start()
+        #     i = 0
+            # time.sleep(1)
             
+        if action == 1:
+            current_time = time.time()
+            if current_time - last_buzzer_call_time >= buzzer_delay:
+                tBuzzer = threading.Thread(target=buzzer, args=(pin,))
+                tBuzzer.start()
+                last_buzzer_call_time = current_time
+
         # if i == 1000 and action != -1: 
         #     tAudio = threading.Thread(target=audio, args=(action,))
         #     tAudio.start()
