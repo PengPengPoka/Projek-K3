@@ -1,15 +1,17 @@
 import cv2 as cv
+import os
 
-cap = cv.VideoCapture(2)
-cap2 = cv.VideoCapture(4)
+home = os.getenv("HOME")
+# print(os.getenv("HOME"))
+path = "/home/test/Projek-K3/vision/utils/video/hasani manjat 3.webm"
+
+cap = cv.VideoCapture(path)
 
 while cap.isOpened():
     grab,img = cap.read()
-    suc, img2 = cap2.read()
     
     if not grab:
         print("no image captured")
-    else:
-        cv.imshow("video",img)
-        cv.imshow("video2",img2)
-        cv.waitKey(3)
+
+    cv.imshow("video",img)
+    cv.waitKey(3)

@@ -1,14 +1,17 @@
 import cv2 as cv
 import mediapipe as mp
-from playsound import playsound
 import time
 import threading
 import numpy as np
+import os
+from pydub import AudioSegment
+from pydub.playback import play
 
 from pose_module import PoseDetector
 
-safe = "/home/kosmos/vision/Projek-K3/utils/sound/aman.mpeg"
-unsafe = "/home/kosmos/vision/Projek-K3/utils/sound/tidak aman.mpeg"
+home = os.getenv("HOME")
+safe = home + "/Projek-K3/vision/utils/sound/aman.mpeg"
+unsafe = home + "/Projek-K3/vision/utils/sound/tidak aman.mpeg"
 
 def nothing():
     pass
@@ -17,23 +20,27 @@ def millis():
     return round(time.time()*1000)
 
 def audio(action):
+    safe_sound = AudioSegment.from_mp3(safe)
+    unsafe_sound = AudioSegment.from_mp3(unsafe)
+
     if action == -1:
         pass
     elif action == 0:
-        playsound(safe)
+        play(safe_sound)
         time.sleep(3)
     elif action == 1:
-        playsound(unsafe)
+        play(unsafe_sound)
         time.sleep(3)
 
 def main():
-    path0 = "/home/kosmos/Videos/man walking.webm"
-    path1 = "/home/kosmos/Videos/ivan manjat.MOV"
-    path2 = "/home/kosmos/Videos/Webcam/manjat kasur.webm"
-    path3 = "/home/kosmos/Videos/Webcam/manjat kursi.webm"
-    path4 = "/home/kosmos/Videos/Webcam/manjat kursi2.webm"
-    path5 = "/home/kosmos/Videos/Webcam/manjat kursi3.webm"
-    cap = cv.VideoCapture(2)
+    path0 = home + "Projek-K3/vision/utils/video/man walking.webm"
+    path1 = home + "Projek-K3/vision/utils/video/ivan manjat.MOV"
+    path2 = home + "Projek-K3/vision/utils/video/manjat kasur.webm"
+    path3 = home + "Projek-K3/vision/utils/video/manjat kursi.webm"
+    path4 = home + "Projek-K3/vision/utils/video/manjat kursi2.webm"
+    path5 = home + "Projek-K3/vision/utils/video/manjat kursi3.webm"
+    path6 = "/home/test/Projek-K3/vision/utils/video/hasani manjat 3.webm"
+    cap = cv.VideoCapture(path6)
 
     pd = PoseDetector()
     pTime = 0
